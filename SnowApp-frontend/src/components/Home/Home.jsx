@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import GoogleLoginButton from "../Login/GoogleLoginButton";
 
 export default function Home() {
   const [reports, setReports] = useState([]);
@@ -26,6 +27,7 @@ export default function Home() {
         <button onClick={() => navigate("/login")}>🔐 Zaloguj się</button>{" "}
         <button onClick={() => navigate("/register")}>🆕 Zarejestruj się</button>{" "}
         <button disabled>🔴 Google (soon)</button>{" "}
+        <GoogleLoginButton />
         <button disabled>🔵 Facebook (soon)</button>
       </div>
 
