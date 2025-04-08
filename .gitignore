@@ -1,0 +1,44 @@
+# Node.js (frontend – Vite, React etc.)
+node_modules/
+dist/
+.env
+.env.local
+
+# Gradle (backend)
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse / STS
+.classpath
+.project
+.settings/
+.springBeans
+.apt_generated
+.factorypath
+bin/
+
+# VS Code
+.vscode/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# macOS
+.DS_Store
+
+# Logs
+logs/
+*.log
+*.log.*
