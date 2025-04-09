@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
 import Login from "./components/Login/Login";
+import VerifyPage from "./components/Verify/VerifyPage";
 import Register from "./components/Register/Register";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Reports from "./components/Reports/Reports.jsx";
@@ -10,6 +11,7 @@ import Home from "./components/Home/Home";
 function App() {
   return (
     <Routes>
+      <Route path="/verify" element={<VerifyPage />} />
       <Route path="/" element={<Navigate to="/home" />} />
       <Route path="/home" element={<Home />} />
       <Route path="/login" element={<Login />} />

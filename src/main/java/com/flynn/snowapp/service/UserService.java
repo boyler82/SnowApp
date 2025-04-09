@@ -3,33 +3,61 @@ package com.flynn.snowapp.service;
 
 import com.flynn.snowapp.dto.UserLoginRequestDto;
 import com.flynn.snowapp.dto.UserRegisterRequestDto;
+import com.flynn.snowapp.exception.EmailAlreadyExistsException;
+import com.flynn.snowapp.exception.EmailNotVerifiedException;
 import com.flynn.snowapp.model.User;
 import com.flynn.snowapp.repository.UserRepository;
 import com.flynn.snowapp.security.JwtService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-
+    private final EmailService emailService;
+    @Transactional
     public void register(UserRegisterRequestDto request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Użytkownik z tym adresem e-mail już istnieje");
+        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            if (user.isEnabled()) {
+                throw new EmailAlreadyExistsException("Użytkownik z tym adresem e-mail już istnieje");
+            } else {
+                // Użytkownik istnieje, ale nie jest aktywowany — wygeneruj nowy token
+                String newToken = UUID.randomUUID().toString();
+                user.setVerificationToken(newToken);
+                userRepository.save(user);
+                emailService.sendVerificationEmail(user.getEmail(), newToken);
+                throw new EmailNotVerifiedException("Użytkownik istnieje, ale nieaktywowany. Wysłano ponownie link aktywacyjny.");
+            }
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
+        // Rejestracja nowego użytkownika
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String verificationToken = UUID.randomUUID().toString();
+
+        User newUser = User.builder()
                 .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.getEmail())
+                .password(encodedPassword)
+                .enabled(false)
+                .locked(false)
+                .verificationToken(verificationToken)
                 .build();
 
-        userRepository.save(user);
+        userRepository.save(newUser);
+        emailService.sendVerificationEmail(newUser.getEmail(), verificationToken);
     }
 
     public String login(UserLoginRequestDto request) {
@@ -38,6 +66,10 @@ public class UserService {
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Nieprawidłowe dane logowania");
+        }
+
+        if (!user.isEnabled()) {
+            throw new RuntimeException("✉️ Konto nieaktywne – sprawdź swój e-mail i kliknij link aktywacyjny.");
         }
 
         return jwtService.generateToken(user);

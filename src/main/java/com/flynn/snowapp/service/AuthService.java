@@ -12,11 +12,14 @@ import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.*;
 
 @Service
@@ -88,5 +91,18 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("❌ Błąd logowania przez Google: " + e.getMessage());
         }
+    }
+
+    public ResponseEntity<String> verifyEmailToken(String token) {
+        System.out.println("🔍 Otrzymano token: " + token);
+
+        User user = userRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("❌ Nieprawidłowy token!"));
+        System.out.println("✅ Znaleziono użytkownika: " + user.getEmail());
+        user.setEnabled(true);
+        user.setVerificationToken(null);
+        userRepository.save(user);
+        System.out.println("🔓 Konto zostało aktywowane!");
+        return ResponseEntity.ok("Konto zostało aktywowane. Możesz się teraz zalogować.");
     }
 }

@@ -1,8 +1,15 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Dashboard() {
   const [reports, setReports] = useState([]);
+  const navigate = useNavigate(); // 👈 DODANE!
+
+  const handleLogout = () => {
+    localStorage.removeItem("jwt");
+    navigate("/login");
+  };
 
   console.log("✅ Dashboard został załadowany");
   const token = localStorage.getItem("jwt");
@@ -26,6 +33,7 @@ export default function Dashboard() {
 
   return (
     <div>
+      <button onClick={handleLogout}>🔓 Wyloguj</button>
       <h1>📋 Dostępne zlecenia</h1>
       {reports.length === 0 ? (
         <p>Brak dostępnych zleceń.</p>

@@ -6,13 +6,11 @@ import com.flynn.snowapp.dto.UserPublicDto;
 import com.flynn.snowapp.model.User;
 import com.flynn.snowapp.repository.ReportRepository;
 import com.flynn.snowapp.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -46,5 +44,10 @@ public class UserController {
                 .toList();
 
         return ResponseEntity.ok(reports);
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        // np. zapis do logów, IP itp.
+        return ResponseEntity.ok("Wylogowano");
     }
 }

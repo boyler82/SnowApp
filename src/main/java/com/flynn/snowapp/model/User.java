@@ -37,6 +37,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "verification_token")
+    private String verificationToken;
+
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Report> reportsCreated = new ArrayList<>();
@@ -46,7 +49,7 @@ public class User implements UserDetails {
     private List<Report> reportsExecuted = new ArrayList<>();
 
     @Builder.Default
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     @Builder.Default
     private boolean locked = false;
